@@ -133,18 +133,18 @@ void ComputeANSV_Opt(int * a, int n, int *left, int *right) {
   		int j = min(i + size, n);
   		ComputeANSV_Linear(a + i, j - i, left + i, right + i);
 
-  		int tmp = -1;
+  		int tmp = i;
   		for (int k = i; k < j; k++) {
   			if (left[k] == -1) {
-  				if (tmp != -1 && a[tmp] < a[k]) left[k] = tmp;
+  				if (a[tmp] < a[k]) left[k] = tmp;
 				else left[k] = tmp = getLeft(table, depth, n, k);
   			} else left[k] += i;
   		}
 
-  		tmp = -1;
+  		tmp = j - 1;
   		for (int k = j - 1; k >=  i; k--) {
   			if (right[k] == -1) {
-  				if (tmp != -1 && a[tmp] < a[k]) right[k] = tmp;
+  				if (a[tmp] < a[k]) right[k] = tmp;
   				else right[k] = tmp = getRight(table, depth, n, k);
   			} else right[k] += i;
   		}
