@@ -59,16 +59,13 @@ inline int getRight(int **table, int depth, int n, int index) {
 
 void ComputeANSV(int *a, int n, int *left, int *right) {
 	int depth = getDepth(n);
-	int *all = new int[n * 2];
+	int *all = new int[n];
 	int **table = new int*[depth];
 
-	table[0] = all;
-	for (int i = 1; i < depth; i++) {
+	table[0] = a;
+	table[1] = all;
+	for (int i = 2; i < depth; i++) {
 		table[i] = table[i - 1] + (1 << (depth - i));
-	}
-
-	cilk_for (int i = 0; i < n; i++) {
-		table[0][i] = a[i];
 	}
 
 	int m = n;
@@ -98,16 +95,13 @@ void ComputeANSV_Opt(int * a, int n, int *left, int *right) {
     int l2 = cflog2(n);
     int depth = l2 + 1;
 
-	int *all = new int[n * 2];
+	int *all = new int[n];
 	int **table = new int*[depth];
 
-	table[0] = all;
-	for (int i = 1; i < depth; i++) {
+	table[0] = a;
+	table[1] = all;
+	for (int i = 2; i < depth; i++) {
 		table[i] = table[i - 1] + (1 << (depth - i));
-	}
-
-	cilk_for (int i = 0; i < n; i++) {
-		table[0][i] = a[i];
 	}
 
 	int m = n;
