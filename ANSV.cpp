@@ -119,7 +119,12 @@ void ComputeANSV_Opt(int * a, int n, int *left, int *right) {
 		m = (m + 1) / 2;
 	}
 
-    int p = omp_get_max_threads();
+    int p = 
+#ifdef OPENMP
+	omp_get_max_threads();
+#elif CILK
+	__cilkrts_get_nworkers();
+#endif
     //printf("num of proc %d.\n", p);
     int size = (n + p - 1) / p;
 

@@ -28,8 +28,7 @@ void compare(int *a, int *b, int n) {
 	printf("Result correct.\n");
 }
 
-extern "C++"
-inline void Usage(char *program) {
+void Usage(char *program) {
 	printf("Usage: %s [options]\n", program);
 	printf("-p <num>\tNumber of processors to use\n");
 	printf("-d <num>\t2^n of character will be processed\n");
@@ -37,7 +36,15 @@ inline void Usage(char *program) {
 	printf("-h \t\tDisplay this help\n");
 }
 
-int cilk_main (int argc, char *argv[]) {
+char* itoa(int val, int base = 10){
+        static char buf[32] = {0};
+        int i = 30;
+        for(; val && i ; --i, val /= base)
+                buf[i] = "0123456789abcdef"[val % base];
+        return &buf[i+1];
+}
+
+int main (int argc, char *argv[]) {
 	int n = 1 << 24;
 	int * a = new int[n];
 	int opt;
@@ -47,7 +54,11 @@ int cilk_main (int argc, char *argv[]) {
 		switch (opt) {
 			case 'p': {
 				int p = atoi(optarg);
+				#ifdef OPENMP
 				omp_set_num_threads(p);
+				#elif CILK
+				__cilkrts_set_param("nworkers", itoa(p));
+				#endif
 				break;
 			}
 			case 'd': {
