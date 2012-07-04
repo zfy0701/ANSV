@@ -91,6 +91,53 @@ void ComputeANSV(int *a, int n, int *left, int *right) {
 	delete all;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline int getLeft_opt(int **table, int depth, int n, int index, int start) {
+	int value = table[0][index];
+	if (value == table[depth - 1][0]) return -1;
+
+	int cur = PARENT(start), d, dist = 2;
+	for (d = 1; d < depth; d++) {
+		if ((cur + 1) * dist > index + 1) cur --;
+		if (cur < 0) return -1;
+
+		if (table[d][cur] >= value) cur = PARENT(cur);
+		else break;
+
+		dist <<= 1;
+	}
+
+	for ( ; d > 0; d--) {
+		if (table[d - 1][RIGHT(cur)] < value) cur = RIGHT(cur);
+		else cur = LEFT(cur);
+	}
+	return cur;
+} 
+
+inline int getRight_opt(int **table, int depth, int n, int index, int start) {
+	int value = table[0][index];
+	if (value == table[depth - 1][0]) return -1;
+
+	int cur = PARENT(start), d, dist = 2;
+	for (d = 1; d < depth; d++) {
+		if (cur * dist < index) cur ++;
+		if (cur * dist >= n) return -1;
+
+		if (table[d][cur] >= value) cur = PARENT(cur);
+		else break;
+
+		dist <<= 1;
+	}
+
+	for ( ; d > 0; d--) {
+		if (table[d - 1][LEFT(cur)] < value) cur = LEFT(cur);
+		else cur = RIGHT(cur);
+	}
+	return cur;
+}
+
+
 void ComputeANSV_Opt(int * a, int n, int *left, int *right) {
     int l2 = cflog2(n);
     int depth = l2 + 1;
@@ -136,7 +183,7 @@ void ComputeANSV_Opt(int * a, int n, int *left, int *right) {
   		for (int k = i; k < j; k++) {
   			if (left[k] == -1) {
   				if (a[tmp] < a[k]) left[k] = tmp;
-				else left[k] = tmp = getLeft(table, depth, n, k);
+				else left[k] = tmp = getLeft_opt(table, depth, n, k, tmp);
   			} else left[k] += i;
   		}
 
@@ -144,7 +191,7 @@ void ComputeANSV_Opt(int * a, int n, int *left, int *right) {
   		for (int k = j - 1; k >=  i; k--) {
   			if (right[k] == -1) {
   				if (a[tmp] < a[k]) right[k] = tmp;
-  				else right[k] = tmp = getRight(table, depth, n, k);
+  				else right[k] = tmp = getRight_opt(table, depth, n, k, tmp);
   			} else right[k] += i;
   		}
   	}
@@ -152,6 +199,8 @@ void ComputeANSV_Opt(int * a, int n, int *left, int *right) {
   	delete table;
 	delete all;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////
 
 void ComputeANSV_Linear(int a[], int n, int leftElements[], int rightElements[]) {
     int i, top;
