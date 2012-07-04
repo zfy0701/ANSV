@@ -18,10 +18,10 @@ void show(int *a, int n) {
 	printf("\n");
 }
 
-void compare(int *a, int *b, int n) {
+void compare(int *values, int *a, int *b, int n) {
 	for (int i = 0; i < n; i++) {
 		if (a[i] != b[i]) {
-			printf("Result incorrect! %d %d %d\n", i, a[i],b[i]);
+			printf("Result incorrect! %d (%d) %d (%d) %d (%d)\n", i, values[i], a[i], values[a[i]], b[i], values[b[i]]);
 			return;
 		}
 	}
@@ -104,13 +104,13 @@ int main (int argc, char *argv[]) {
 
 	//show(l2, n);
 
-	compare(l1, l2, n);
+	compare(a, l1, l2, n);
 
 	startTime();
 	ComputeANSV_Opt(a, n, l2, r2);
 	nextTime("test parallel\t");
 
-	compare(l1, l2, n);
+	compare(a, l1, l2, n);
 	//show(l2, n);
 
 	delete a;

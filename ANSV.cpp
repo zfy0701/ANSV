@@ -138,6 +138,26 @@ inline int getRight_opt(int **table, int depth, int n, int index, int start) {
 }
 
 
+void ComputeANSV_Linear_opt(int a[], int n, int leftElements[], int rightElements[], int offset) {
+    int i, top;
+    int *stack = new int[n];
+
+    for (i = 0, top = -1; i < n; i++) {
+        while (top > -1 && a[stack[top]] > a[i]) top--;
+        if (top == -1) leftElements[i] = -1;
+        else leftElements[i] = stack[top] + offset;
+        stack[++top] = i;
+    }
+
+    for (i = n - 1, top = -1; i >= 0; i--) {
+        while (top > -1 && a[stack[top]] > a[i]) top--;
+        if (top == -1) rightElements[i] = -1;
+        else rightElements[i] = stack[top] + offset;
+        stack[++top] = i;
+    }
+    delete stack;
+}
+
 void ComputeANSV_Opt(int * a, int n, int *left, int *right) {
     int l2 = cflog2(n);
     int depth = l2 + 1;
@@ -177,22 +197,30 @@ void ComputeANSV_Opt(int * a, int n, int *left, int *right) {
 
   	cilk_for (int i = 0; i < n; i += size) {
   		int j = min(i + size, n);
-  		ComputeANSV_Linear(a + i, j - i, left + i, right + i);
+  		ComputeANSV_Linear_opt(a + i, j - i, left + i, right + i, i);
 
   		int tmp = i;
   		for (int k = i; k < j; k++) {
   			if (left[k] == -1) {
-  				if (a[tmp] < a[k]) left[k] = tmp;
-				else left[k] = tmp = getLeft_opt(table, depth, n, k, tmp);
-  			} else left[k] += i;
+  				if (a[tmp] >= a[k] && tmp != -1) {
+  					//if (left[tmp] != -1)
+  					//	tmp = left[tmp];
+					tmp = getLeft_opt(table, depth, n, k, tmp);
+				}
+				left[k] = tmp;
+  			}
   		}
 
   		tmp = j - 1;
   		for (int k = j - 1; k >=  i; k--) {
   			if (right[k] == -1) {
-  				if (a[tmp] < a[k]) right[k] = tmp;
-  				else right[k] = tmp = getRight_opt(table, depth, n, k, tmp);
-  			} else right[k] += i;
+  				if (a[tmp] >= a[k] && tmp != -1) {
+  					//if (right[tmp] != -1)
+  					//	tmp = right[k];
+	  				tmp = getRight_opt(table, depth, n, k, tmp);
+  				}
+  				right[k] = tmp;
+  			}
   		}
   	}
 
